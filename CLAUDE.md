@@ -50,8 +50,12 @@ python3 -m http.server 8000
   - `START_SCORE` … 持ち点の初期値（40）
   - `DARTS_PER_ROUND` … 1 ラウンドの投数（3）
   - `BULL_MARK_POINT` … BULL の 1 マークあたりの得点（25）
+  - `DOUBLE_MAX_POINT` … DOUBLE のラウンドの 1 投の最高得点（50）。
+    インブルがダブル判定なので D20 の 40 ではなくインブルの 50 が上限になる
   - `ROUNDS` … 全 9 ラウンドの狙う場所。`type` は `number` / `double` / `triple` / `bull`
-- 状態は `state`（`history` と `inputMode`）だけに持つ。
+- 状態は `state`（`history` / `inputMode` / `menuOpen` / `simple` / `theme`）だけに持つ。
+  3 点メニューの開閉（`menuOpen`）や見た目の設定（`simple` / `theme`）も `state` に持ち、
+  `render()` の先頭でまとめて描画する（ゲーム終了後も切り替えられるように早期 return より前に置く）。
   **持ち点は `state` に持たず、`history` の最後の要素から導出する**（`currentScore()`）。
   同様に現在のラウンドも `history.length` から導出する（`currentRound()` / `isFinished()`）。
   そのため「1つ戻る」は `history.pop()`、「最初から」は `history = []` だけで成立する。
@@ -65,9 +69,13 @@ python3 -m http.server 8000
 
 ## スタイルの方針（css/style.css）
 
-- 色は `:root` の CSS 変数で定義し、`prefers-color-scheme: dark` で上書きする。
-  色を直接書かず、変数を追加して参照する。
-- クラス名は BEM 風（`.board__value`、`.button--sub`）。状態は `is-` 接頭辞（`.is-halved`）。
+- 色は `:root` の CSS 変数で定義し、色を直接書かず、変数を追加して参照する。
+- 配色は 3 つの入れ物で管理する。変数を足すときは 3 か所すべてに書く。
+  - `:root` … 白基調（既定）
+  - `@media (prefers-color-scheme: dark)` の `:root:not([data-theme="light"])` … 端末がダークのとき
+  - `:root[data-theme="dark"]` … 3 点メニューで黒基調を選んだとき（`state.theme` が `<html>` に付ける）
+- クラス名は BEM 風（`.board__value`、`.button--sub`）。状態は `is-` 接頭辞（`.is-halved`、`.is-simple`）。
+- シンプルモードで隠す要素は `.is-simple` の子孫セレクタにまとめる（JS では `body` にクラスを付けるだけ）。
 
 ## コーディング方針
 
