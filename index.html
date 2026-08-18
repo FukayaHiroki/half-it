@@ -3,25 +3,97 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>half-it</title>
+    <title>ハーフイット カウント</title>
     <link rel="stylesheet" href="css/style.css">
     <script src="js/main.js" defer></script>
   </head>
   <body>
     <main class="container">
-      <h1>half-it</h1>
-      <p class="lead">このページは GitHub Pages の動作確認用なのだ。</p>
+      <h1>ハーフイット カウント</h1>
+      <p class="lead">持ち点40からスタートする全9ラウンドのソロ用カウンターです。</p>
 
-      <section class="check">
-        <h2>読み込みチェック</h2>
-        <p id="css-status" class="status">CSS がこの箱に色を付けていれば読み込み成功なのだ</p>
-        <p id="js-status" class="status status--pending">JS 未読み込み（このままなら JS が動いていないのだ）</p>
-        <button id="check-button" type="button">クリックして JS を試す</button>
+      <section class="board">
+        <p class="board__score">
+          <span class="board__label">持ち点</span>
+          <strong class="board__value" id="score">40</strong>
+        </p>
+        <div class="board__meta">
+          <p class="board__item">
+            <span class="board__label">ラウンド</span>
+            <strong id="round-number">1 / 9</strong>
+          </p>
+          <p class="board__item">
+            <span class="board__label">狙う場所</span>
+            <strong id="round-target">15</strong>
+          </p>
+        </div>
       </section>
 
-      <footer class="footer">
-        <p>素の HTML / CSS / JavaScript だけで作っているのだ。</p>
-      </footer>
+      <section class="input" id="input-area">
+        <fieldset class="modes">
+          <legend>入力方式</legend>
+          <label class="modes__item">
+            <input type="radio" name="input-mode" value="marks" id="mode-marks" checked>
+            マーク数
+          </label>
+          <label class="modes__item">
+            <input type="radio" name="input-mode" value="manual" id="mode-manual">
+            手入力
+          </label>
+        </fieldset>
+
+        <div class="marks" id="marks-area">
+          <p class="marks__hint">入ったマーク数を選択してください。0 はミス（持ち点が半減）です。キーボードの数字キーでも入力できます。</p>
+          <div class="marks__buttons" id="mark-buttons"></div>
+        </div>
+
+        <form class="manual" id="manual-form" hidden>
+          <label class="manual__label" for="manual-input">このラウンドの合計得点</label>
+          <div class="manual__row">
+            <input
+              type="number"
+              id="manual-input"
+              inputmode="numeric"
+              min="0"
+              step="1"
+              autocomplete="off"
+            >
+            <button type="submit">OK</button>
+          </div>
+          <p class="manual__hint" id="manual-hint"></p>
+          <p class="error" id="manual-error" hidden></p>
+        </form>
+      </section>
+
+      <section class="result" id="result-area" hidden>
+        <h2>ゲーム終了</h2>
+        <p class="result__score">最終スコア <strong id="final-score">0</strong> 点</p>
+        <p class="result__halved" id="final-halved">半減 0 回</p>
+      </section>
+
+      <div class="actions">
+        <button type="button" class="button--sub" id="undo-button">1つ戻る</button>
+        <button type="button" class="button--sub" id="reset-button">最初から</button>
+      </div>
+
+      <details class="history" open>
+        <summary class="history__summary">スコア表</summary>
+        <div class="history__scroll">
+          <table class="history__table">
+            <thead>
+              <tr>
+                <th>R</th>
+                <th>狙う場所</th>
+                <th>結果</th>
+                <th>加点/半減</th>
+                <th>持ち点</th>
+              </tr>
+            </thead>
+            <tbody id="history-body"></tbody>
+          </table>
+        </div>
+        <p class="history__empty" id="history-empty">まだ記録はありません。</p>
+      </details>
     </main>
   </body>
 </html>
