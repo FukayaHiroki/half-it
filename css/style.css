@@ -1,11 +1,11 @@
-/* 動作確認用の最小スタイル */
+/* ハーフイット カウントアプリのスタイル */
 
 :root {
   --bg: #f7f8fa;
   --fg: #24292f;
   --muted: #57606a;
   --accent: #2da44e;
-  --pending: #bf8700;
+  --danger: #cf222e;
   --border: #d0d7de;
   --panel: #ffffff;
 }
@@ -16,7 +16,7 @@
     --fg: #e6edf3;
     --muted: #9198a1;
     --accent: #3fb950;
-    --pending: #d29922;
+    --danger: #f85149;
     --border: #30363d;
     --panel: #161b22;
   }
@@ -42,7 +42,7 @@ body {
 
 h1 {
   margin: 0 0 0.5rem;
-  font-size: 2rem;
+  font-size: 1.75rem;
 }
 
 h2 {
@@ -51,28 +51,8 @@ h2 {
 }
 
 .lead {
-  margin: 0 0 2rem;
+  margin: 0 0 1.5rem;
   color: var(--muted);
-}
-
-.check {
-  padding: 1.25rem;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--panel);
-}
-
-.status {
-  margin: 0 0 0.75rem;
-  padding: 0.75rem 1rem;
-  border-left: 4px solid var(--accent);
-  border-radius: 4px;
-  background: color-mix(in srgb, var(--accent) 12%, transparent);
-}
-
-.status--pending {
-  border-left-color: var(--pending);
-  background: color-mix(in srgb, var(--pending) 12%, transparent);
 }
 
 button {
@@ -85,13 +65,248 @@ button {
   cursor: pointer;
 }
 
-button:hover {
+button:hover:not(:disabled) {
   opacity: 0.85;
 }
 
-.footer {
-  margin-top: 2rem;
+button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.button--sub {
+  background: var(--panel);
+  color: var(--fg);
+}
+
+/* 持ち点とラウンド表示 */
+
+.board {
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+  text-align: center;
+}
+
+.board__score {
+  display: flex;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.75rem;
+  margin: 0;
+}
+
+.board__label {
   color: var(--muted);
   font-size: 0.875rem;
+}
+
+.board__value {
+  font-size: 3.5rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+
+.board__meta {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.5rem 2.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--border);
+}
+
+.board__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin: 0;
+}
+
+.board__item strong {
+  font-size: 2.25rem;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+  letter-spacing: 0.02em;
+}
+
+/* 入力エリア */
+
+.input {
+  margin-top: 1.25rem;
+  padding: 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.modes {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.25rem 1.25rem;
+  margin: 0;
+  padding: 0;
+  border: none;
+}
+
+.modes legend {
+  padding: 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.modes__item {
+  cursor: pointer;
+}
+
+.marks__hint,
+.manual__label {
+  display: block;
+  margin: 1rem 0 0.5rem;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.marks__buttons {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(3.25rem, 1fr));
+  gap: 0.5rem;
+}
+
+.marks__buttons button {
+  padding: 0.75rem 0.25rem;
+  font-size: 1.125rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.marks__buttons .button--miss {
+  background: var(--danger);
+}
+
+.manual__row {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.manual__row input {
+  flex: 1;
+  min-width: 0;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--bg);
+  color: var(--fg);
+  font: inherit;
+}
+
+.manual__hint {
+  margin: 0.5rem 0 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+.error {
+  margin: 0.5rem 0 0;
+  padding: 0.5rem 0.75rem;
+  border-left: 4px solid var(--danger);
+  border-radius: 4px;
+  background: color-mix(in srgb, var(--danger) 12%, transparent);
+  font-size: 0.875rem;
+}
+
+/* 結果表示 */
+
+.result {
+  margin-top: 1.25rem;
+  padding: 1.25rem;
+  border: 1px solid var(--accent);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--accent) 10%, var(--panel));
   text-align: center;
+}
+
+.result__score {
+  margin: 0;
+  font-size: 1.125rem;
+}
+
+.result__score strong {
+  font-size: 2.5rem;
+  font-variant-numeric: tabular-nums;
+}
+
+.result__halved {
+  margin: 0.25rem 0 0;
+  color: var(--muted);
+  font-size: 0.875rem;
+}
+
+/* 操作ボタン */
+
+.actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1rem;
+}
+
+/* スコア表 */
+
+.history {
+  margin-top: 2rem;
+  padding: 1rem 1.25rem;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--panel);
+}
+
+.history__summary {
+  font-size: 1.1rem;
+  font-weight: bold;
+  cursor: pointer;
+}
+
+.history[open] .history__summary {
+  margin-bottom: 0.75rem;
+}
+
+.history__scroll {
+  overflow-x: auto;
+}
+
+.history__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+
+.history__table th,
+.history__table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid var(--border);
+  text-align: right;
+  white-space: nowrap;
+}
+
+.history__table th:nth-child(2),
+.history__table td:nth-child(2) {
+  text-align: left;
+}
+
+.history__table thead th {
+  color: var(--muted);
+  font-size: 0.875rem;
+  font-weight: normal;
+}
+
+.history__table .is-halved {
+  color: var(--danger);
+}
+
+.history__empty {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.875rem;
 }
