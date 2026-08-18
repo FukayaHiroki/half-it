@@ -3,6 +3,8 @@
 const START_SCORE = 40;
 const BULL_MARK_POINT = 25;
 const DARTS_PER_ROUND = 3;
+// インブル（BULL の 2 マーク分）はダブル判定なので、DOUBLE のラウンドの 1 投の最高は 50 点
+const DOUBLE_MAX_POINT = BULL_MARK_POINT * 2;
 
 // 各ラウンドの狙う場所
 const ROUNDS = [
@@ -17,11 +19,19 @@ const ROUNDS = [
   { target: 'BULL', type: 'bull' },
 ];
 
+// 画面の色の初期値。端末の設定に合わせておき、3点メニューから切り替える
+function initialTheme() {
+  return window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+}
+
 // history: [{ gained, marks, scoreAfter, halved }]
 // 持ち点は START_SCORE と history から導出するので、別に持たない
 const state = {
   history: [],
   inputMode: 'marks',
+  menuOpen: false,
+  simple: false,
+  theme: initialTheme(),
 };
 
 // マーク数で入力できるラウンドの最大マーク数（0 ならマーク数入力に対応しない）
@@ -46,7 +56,7 @@ function manualRule(round) {
     case 'number':
       return { max: round.num * markLimit(round), unit: round.num };
     case 'double':
-      return { max: 40 * DARTS_PER_ROUND, unit: 2 };
+      return { max: DOUBLE_MAX_POINT * DARTS_PER_ROUND, unit: 2 };
     case 'triple':
       return { max: 60 * DARTS_PER_ROUND, unit: 3 };
     default:
@@ -90,6 +100,12 @@ document.addEventListener('DOMContentLoaded', () => {
     score: document.getElementById('score'),
     roundNumber: document.getElementById('round-number'),
     roundTarget: document.getElementById('round-target'),
+    menu: document.getElementById('menu'),
+    menuButton: document.getElementById('menu-button'),
+    menuPanel: document.getElementById('menu-panel'),
+    modeSwitch: document.getElementById('mode-switch'),
+    simpleSwitch: document.getElementById('simple-switch'),
+    themeButton: document.getElementById('theme-button'),
     inputArea: document.getElementById('input-area'),
     modeMarks: document.getElementById('mode-marks'),
     modeManual: document.getElementById('mode-manual'),
@@ -168,6 +184,15 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   function render() {
+    // メニューと見た目はゲーム終了後も変えられるので、早期 return より前に描画する
+    el.menuPanel.hidden = !state.menuOpen;
+    el.menuButton.setAttribute('aria-expanded', String(state.menuOpen));
+    el.modeSwitch.checked = state.inputMode === 'manual';
+    el.simpleSwitch.checked = state.simple;
+    el.themeButton.textContent = state.theme === 'dark' ? '白基調にする' : '黒基調にする';
+    document.documentElement.dataset.theme = state.theme;
+    document.body.classList.toggle('is-simple', state.simple);
+
     el.score.textContent = String(currentScore());
     el.undoButton.disabled = state.history.length === 0;
     el.resetButton.disabled = state.history.length === 0;
@@ -199,7 +224,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     el.marksArea.hidden = mode !== 'marks';
     el.manualForm.hidden = mode !== 'manual';
-    clearError();
+
+    // 手入力欄とエラーはラウンドが変わったときだけ初期化する。
+    // メニューの操作でも render() が走るので、入力途中の値を消さないため
+    const roundKey = String(state.history.length);
+    if (el.manualInput.dataset.round !== roundKey) {
+      el.manualInput.dataset.round = roundKey;
+      el.manualInput.value = '';
+      clearError();
+    }
 
     if (mode === 'marks') {
       renderMarkButtons(round);
@@ -207,11 +240,14 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const rule = manualRule(round);
-    el.manualInput.value = '';
     el.manualInput.max = String(rule.max);
     el.manualHint.textContent =
       `0 〜 ${rule.max} の ${rule.unit} の倍数で入力してください（すべて外した場合は 0）。`;
-    el.manualInput.focus();
+
+    // メニューを操作している間はフォーカスを奪わない
+    if (!state.menuOpen) {
+      el.manualInput.focus();
+    }
   }
 
   el.manualForm.addEventListener('submit', (event) => {
@@ -238,12 +274,35 @@ document.addEventListener('DOMContentLoaded', () => {
     render();
   });
 
-  // マーク数入力のときは数字キーでもボタンを押せるようにする（0 はミス）
+  // キーボード操作。数字キーはマーク数、b は1つ戻る、s は最初から
   document.addEventListener('keydown', (event) => {
-    if (event.metaKey || event.ctrlKey || event.altKey || isFinished()) {
+    // Escape でメニューを閉じる。ゲーム終了後も効かせたいので他のガードより前に置く
+    if (event.key === 'Escape' && state.menuOpen) {
+      state.menuOpen = false;
+      render();
+      el.menuButton.focus();
       return;
     }
-    if (event.target === el.manualInput) {
+
+    // Cmd+S などのブラウザの操作は邪魔しない
+    if (event.metaKey || event.ctrlKey || event.altKey) {
+      return;
+    }
+    // メニューを開いている間と手入力中は、キーで持ち点が動かないようにする
+    if (state.menuOpen || event.target === el.manualInput) {
+      return;
+    }
+
+    // やり直しはゲーム終了後も使うので、isFinished() の判定より前に置く。
+    // 押せない状態（履歴が空）のボタンは click() しても何も起きない
+    const key = event.key.toLowerCase();
+    if (key === 'b' || key === 's') {
+      event.preventDefault();
+      (key === 'b' ? el.undoButton : el.resetButton).click();
+      return;
+    }
+
+    if (isFinished()) {
       return;
     }
 
@@ -266,6 +325,35 @@ document.addEventListener('DOMContentLoaded', () => {
       state.inputMode = radio.value;
       render();
     });
+  });
+
+  el.menuButton.addEventListener('click', () => {
+    state.menuOpen = !state.menuOpen;
+    render();
+  });
+
+  // メニュー内の設定は、切り替えてもメニューを開いたままにする
+  el.modeSwitch.addEventListener('change', () => {
+    state.inputMode = el.modeSwitch.checked ? 'manual' : 'marks';
+    render();
+  });
+
+  el.simpleSwitch.addEventListener('change', () => {
+    state.simple = el.simpleSwitch.checked;
+    render();
+  });
+
+  el.themeButton.addEventListener('click', () => {
+    state.theme = state.theme === 'dark' ? 'light' : 'dark';
+    render();
+  });
+
+  document.addEventListener('click', (event) => {
+    if (!state.menuOpen || el.menu.contains(event.target)) {
+      return;
+    }
+    state.menuOpen = false;
+    render();
   });
 
   el.undoButton.addEventListener('click', () => {

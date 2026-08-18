@@ -9,8 +9,35 @@
   </head>
   <body>
     <main class="container">
-      <h1>ハーフイット カウント</h1>
-      <p class="lead">持ち点40からスタートする全9ラウンドのソロ用カウンターです。</p>
+      <header class="page-header">
+        <div class="page-header__text">
+          <h1>ハーフイット カウント</h1>
+          <p class="lead">持ち点40からスタートする全9ラウンドのソロ用カウンターです。</p>
+        </div>
+
+        <div class="menu" id="menu">
+          <button
+            type="button"
+            class="button--sub menu__button"
+            id="menu-button"
+            aria-expanded="false"
+            aria-label="メニュー"
+          >⋮</button>
+          <div class="menu__panel" id="menu-panel" hidden>
+            <label class="switch">
+              <input type="checkbox" class="switch__input" id="mode-switch">
+              <span class="switch__track"><span class="switch__knob"></span></span>
+              <span class="switch__text">手入力で入力する</span>
+            </label>
+            <label class="switch">
+              <input type="checkbox" class="switch__input" id="simple-switch">
+              <span class="switch__track"><span class="switch__knob"></span></span>
+              <span class="switch__text">シンプルモード</span>
+            </label>
+            <button type="button" class="button--sub menu__action" id="theme-button">黒基調にする</button>
+          </div>
+        </div>
+      </header>
 
       <section class="board">
         <p class="board__score">
@@ -76,7 +103,7 @@
         <button type="button" class="button--sub" id="reset-button">最初から</button>
       </div>
 
-      <details class="history" open>
+      <details class="history">
         <summary class="history__summary">スコア表</summary>
         <div class="history__scroll">
           <table class="history__table">
