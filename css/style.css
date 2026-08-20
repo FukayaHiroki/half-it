@@ -216,31 +216,58 @@ button:disabled {
   display: none;
 }
 
-.is-simple .page-header {
-  margin-bottom: 1rem;
+/* 上下左右の余白を最小限にして、画面の幅いっぱいまで使う */
+body.is-simple {
+  padding: 0.5rem;
 }
 
-/* 文字サイズは clamp で画面幅に追従させ、狭い画面でもはみ出さないようにする */
+.is-simple .container {
+  max-width: none;
+}
+
+.is-simple .page-header {
+  margin-bottom: 0.5rem;
+}
+
+/* 文字サイズは画面幅と画面高さの両方に追従させ、
+   狭い画面でも横にはみ出さず、低い画面でも縦に伸びすぎないようにする */
 .is-simple .board {
-  padding: 1.75rem 1.25rem;
+  padding: 1rem 0.75rem;
 }
 
 .is-simple .board__label {
-  font-size: 1rem;
+  font-size: 1.125rem;
 }
 
 .is-simple .board__value {
-  font-size: clamp(4rem, 20vw, 6rem);
+  font-size: clamp(5rem, min(36vw, 32vh), 16rem);
 }
 
 .is-simple .board__meta {
   gap: 0.5rem 3rem;
-  margin-top: 1.25rem;
-  padding-top: 1.25rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
 }
 
 .is-simple .board__item strong {
-  font-size: clamp(2.5rem, 12vw, 3.75rem);
+  font-size: clamp(2.5rem, min(15vw, 13vh), 6rem);
+}
+
+.is-simple .input {
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+}
+
+.is-simple .actions {
+  margin-top: 0.5rem;
+}
+
+.is-simple .result {
+  margin-top: 0.5rem;
+}
+
+.is-simple .history {
+  margin-top: 0.75rem;
 }
 
 /* 持ち点とラウンド表示 */
