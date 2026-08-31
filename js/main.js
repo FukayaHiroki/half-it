@@ -274,7 +274,8 @@ document.addEventListener('DOMContentLoaded', () => {
     render();
   });
 
-  // キーボード操作。数字キーはマーク数、b は1つ戻る、s は最初から
+  // キーボード操作。数字キーはマーク数、b は1つ戻る、s は最初から、
+  // 終了後の Enter は次のゲーム
   document.addEventListener('keydown', (event) => {
     // Escape でメニューを閉じる。ゲーム終了後も効かせたいので他のガードより前に置く
     if (event.key === 'Escape' && state.menuOpen) {
@@ -299,6 +300,17 @@ document.addEventListener('DOMContentLoaded', () => {
     if (key === 'b' || key === 's') {
       event.preventDefault();
       (key === 'b' ? el.undoButton : el.resetButton).click();
+      return;
+    }
+
+    // ゲーム終了後は Enter で次のゲームを始める（「最初から」と同じ）。
+    // ボタンなどにフォーカスがあるときは、その要素本来の Enter の動きを優先する
+    if (event.key === 'Enter' && isFinished()) {
+      if (event.target.closest('button, a, summary, input, select, textarea')) {
+        return;
+      }
+      event.preventDefault();
+      el.resetButton.click();
       return;
     }
 
