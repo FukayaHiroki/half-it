@@ -30,7 +30,7 @@ const state = {
   history: [],
   inputMode: 'marks',
   menuOpen: false,
-  simple: false,
+  simple: true,
   theme: initialTheme(),
 };
 
